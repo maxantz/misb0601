@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 from Models.Checksum import Checksum
-from Models.LSUniversalKeys import LSUniversalKey
+from Models.LSUniversalKey import LSUniversalKey
+from Models.MISB601Packet import MISB0601Packet
 from Models.Mission import Mission
 from Models.SensorHorizontalFieldOfView import SensorHorizontalFieldOfView
 from Models.SensorLatitude import SensorLatitude
@@ -11,14 +12,15 @@ from Models.Timestamp import Timestamp
 from Models.Version import Version
 
 from time import strptime
-from datetime import datetime
+from datetime import datetime, timezone
 
 def main():
+    """
     l = LSUniversalKey()
     tmp_l = str(l)
     print(tmp_l)
 
-    t = Timestamp(int(datetime(*(strptime('2008-10-24T00:13:29.913Z', '%Y-%m-%dT%H:%M:%S.%fZ')[0:6])).timestamp()*1000))
+    t = Timestamp(int(datetime.strptime('2008-10-24T00:13:29.913Z', '%Y-%m-%dT%H:%M:%S.%fZ').timestamp()*1000))
     tmp_t = str(t)
     print(tmp_t)
 
@@ -46,11 +48,20 @@ def main():
     tmp_v = str(v)
     print(tmp_v)
 
-    tmp_t = '000459f4a6aa4aa8'
-
-    c = Checksum(bytearray.fromhex(tmp_l) + bytearray.fromhex(tmp_t) + bytearray.fromhex(tmp_m) + bytearray.fromhex(tmp_la) + bytearray.fromhex(tmp_lo) + bytearray.fromhex(tmp_al) + bytearray.fromhex(tmp_h) + bytearray.fromhex(tmp_v))
+    c = Checksum(bytearray.fromhex(tmp_t) + bytearray.fromhex(tmp_m) + bytearray.fromhex(tmp_la) + bytearray.fromhex(tmp_lo) + bytearray.fromhex(tmp_al) + bytearray.fromhex(tmp_h) + bytearray.fromhex(tmp_v))
     print(c)
+    """
 
+    result = MISB0601Packet()
+    result.add_data(Timestamp(int(datetime.strptime('2008-10-24T00:13:29.913Z', '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc).timestamp()*1e6)))
+    result.add_data(Mission('MISSION01'))
+    result.add_data(SensorLatitude(60.176822967))
+    result.add_data(SensorLongitude(128.426759042))
+    result.add_data(SensorTrueAltitude(14190.72))
+    result.add_data(SensorHorizontalFieldOfView(144.5713))
+    result.add_data(Version())
+
+    print(result)
 
 if __name__ == '__main__':
     main()
